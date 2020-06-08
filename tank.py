@@ -9,6 +9,11 @@
 #     爆炸类：
 #
 #     音效类：
+"""
+新增：
+1. 解决点击关闭按钮， 程序未响应bug
+2. 事件处理， 方向键控制，发射按键控制
+"""
 import pygame
 _display = pygame.display
 
@@ -25,11 +30,37 @@ class MainGame():
         # 加载游戏窗口
         MainGame.__window = _display.set_mode([MainGame.__SCREEN_WIDTH, MainGame.__SCREEN_HEIGHT])
         # 设置游戏标题
-        _display.set_caption("坦克大站v1.0")
+        _display.set_caption("坦克大战v1.1")
         while True:
-            MainGame.__window.fill(pygame.Color(0, 0, 0))
+            # 渲染背景
+            MainGame.__window.fill(pygame.Color(0, 0, 255))
+
+            # 调用事件处理的方法
+            self.getEvent()
+
             # 刷新屏幕
             _display.update()
+
+    # 事件处理方法
+    def getEvent(self):
+        # 获取所有事件
+        eventList = pygame.event.get()
+        for event in eventList:
+            # type属性
+            if event.type == pygame.QUIT:
+                print("退出游戏")
+                self.gameOver()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    print("向左移动")
+                elif event.key == pygame.K_RIGHT:
+                    print("向右移动")
+                elif event.key == pygame.K_UP:
+                    print("向上移动")
+                elif event.key == pygame.K_DOWN:
+                    print("向下移动")
+                elif event.key == pygame.K_SPACE:
+                    print("攻击")
 
     def gameOver(self):
         exit()
