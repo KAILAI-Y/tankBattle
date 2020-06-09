@@ -1,4 +1,3 @@
-
 """
 v1.2 新增：
 1.实现左上角剩余敌方坦克提示
@@ -7,6 +6,7 @@ v1.2 新增：
     c.将小画布贴到窗口中
 """
 import pygame
+
 _display = pygame.display
 
 
@@ -77,8 +77,25 @@ class MainGame():
         exit()
 
 
-class Tank():
-    pass
+# 继承精灵类的类， 供其他类继承
+class BaseItem(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+
+class Tank(BaseItem):
+    def __init__(self, left, top):
+        self.images = {
+            'U': pygame.image.load(),
+            'D':
+            'L':
+            'R':
+        }
+        self.direction = None
+        self.image = None
+        self.rect = None
+        self.speed = 5
+
 
 
 class MyTank(Tank):
@@ -89,7 +106,7 @@ class EnemyTank(Tank):
     pass
 
 
-class Bullet():
+class Bullet(BaseItem):
     pass
 
 
