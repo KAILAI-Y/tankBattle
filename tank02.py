@@ -30,6 +30,9 @@ class MainGame():
             # 调用事件处理的方法
             self.getEvent()
 
+            # 将带有文字的Surface绘制到窗口中
+            MainGame.__window.blit(self.drawText('剩余敌方坦克%d辆' % 5), (5, 5))
+
             # 刷新屏幕
             _display.update()
 
@@ -53,6 +56,22 @@ class MainGame():
                     print("向下移动")
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
+
+    # 给一个字符串，返回一个包含字符串内容的表面(surface)
+    def drawText(self, content):
+        # 字体模块初始化
+        pygame.font.init()
+
+        # 创建字体对象
+        font = pygame.font.Font('FangZhengFangSongFanTi-1.ttf', 16)
+        # fonts_list = pygame.font.get_fonts()
+        # print(fonts_list)
+
+        # 使用字体渲染内容
+        text_sf = font.render(content, True, pygame.Color(0, 255, 0))
+
+        # 返回包含内容的Surface
+        return text_sf
 
     def gameOver(self):
         exit()
@@ -84,3 +103,4 @@ class Music():
 
 game = MainGame()
 game.startGame()
+# game.drawText('a')
