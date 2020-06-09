@@ -1,18 +1,10 @@
-# 游戏业务（面向对象的思想分析游戏）
-# 坦克大战
-#     主逻辑类：
-#
-#     坦克类：（我方坦克，敌方坦克）
-#
-#     子弹类：
-#
-#     爆炸类：
-#
-#     音效类：
+
 """
-新增：
-1. 解决点击关闭按钮， 程序未响应bug
-2. 事件处理， 方向键控制，发射按键控制
+v1.2 新增：
+1.实现左上角剩余敌方坦克提示
+    a.选一个字体
+    b.使用指定的字体绘制文字
+    c.将小画布贴到窗口中
 """
 import pygame
 _display = pygame.display
@@ -30,13 +22,16 @@ class MainGame():
         # 加载游戏窗口
         MainGame.__window = _display.set_mode([MainGame.__SCREEN_WIDTH, MainGame.__SCREEN_HEIGHT])
         # 设置游戏标题
-        _display.set_caption("坦克大战v1.1")
+        _display.set_caption("坦克大战v1.2")
         while True:
             # 渲染背景
             MainGame.__window.fill(pygame.Color(0, 0, 255))
 
             # 调用事件处理的方法
             self.getEvent()
+
+            # 将带有文字的Surface绘制到窗口中
+            MainGame.__window.blit(self.drawText('剩余敌方坦克%d辆' % 5), (5, 5))
 
             # 刷新屏幕
             _display.update()
@@ -61,6 +56,22 @@ class MainGame():
                     print("向下移动")
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
+
+    # 给一个字符串，返回一个包含字符串内容的表面(surface)
+    def drawText(self, content):
+        # 字体模块初始化
+        pygame.font.init()
+
+        # 创建字体对象
+        font = pygame.font.Font('FangZhengFangSongFanTi-1.ttf', 16)
+        # fonts_list = pygame.font.get_fonts()
+        # print(fonts_list)
+
+        # 使用字体渲染内容
+        text_sf = font.render(content, True, pygame.Color(0, 255, 0))
+
+        # 返回包含内容的Surface
+        return text_sf
 
     def gameOver(self):
         exit()
@@ -92,3 +103,4 @@ class Music():
 
 game = MainGame()
 game.startGame()
+# game.drawText('a')
