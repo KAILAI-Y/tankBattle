@@ -21,7 +21,7 @@ class MainGame():
         # 加载游戏窗口
         MainGame.window = _display.set_mode([MainGame.__SCREEN_WIDTH, MainGame.__SCREEN_HEIGHT])
         # 设置游戏标题
-        _display.set_caption("坦克大战v1.3")
+        _display.set_caption("坦克大战v1.4")
         # 创建一个坦克
         MainGame.P1_TANK = Tank(375, 250)
         while True:
