@@ -1,8 +1,7 @@
 """
-v1.3 新增功能：
-    1.引入精灵类
-    2. 完善坦克类的封装
-    3. 让坦克在窗口中提示
+v1.4 新增功能：
+    1.实现坦克的移动
+
 """
 import pygame
 
@@ -143,3 +142,4 @@ class Music():
 game = MainGame()
 game.startGame()
 # game.drawText('a')
+
