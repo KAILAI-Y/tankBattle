@@ -24,7 +24,7 @@ class MainGame():
         # 设置游戏标题
         _display.set_caption("坦克大战v1.3")
         # 创建一个坦克
-        MainGame.P1_TANK = Tank(600, 250)
+        MainGame.P1_TANK = Tank(375, 250)
         while True:
             # 渲染背景
             MainGame.window.fill(pygame.Color(0, 0, 255))
@@ -49,12 +49,16 @@ class MainGame():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     print("向左移动")
+                    MainGame.P1_TANK.direction = 'L'
                 elif event.key == pygame.K_RIGHT:
                     print("向右移动")
+                    MainGame.P1_TANK.direction = 'R'
                 elif event.key == pygame.K_UP:
                     print("向上移动")
+                    MainGame.P1_TANK.direction = 'U'
                 elif event.key == pygame.K_DOWN:
                     print("向下移动")
+                    MainGame.P1_TANK.direction = 'D'
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
 
@@ -104,7 +108,7 @@ class Tank(BaseItem):
         # 设置坦克图片
         self.image = self.images[self.direction]
         # 将坦克加入到窗口中
-        MainGame.window.bilt(self.image, self.rect)
+        MainGame.window.blit(self.image, self.rect)
 
 
 class MyTank(Tank):
