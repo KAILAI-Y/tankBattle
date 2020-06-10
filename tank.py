@@ -1,16 +1,19 @@
 """
-v1.4 新增功能：
-    1.实现坦克的移动
-
+v1.5 新增功能：
+    1.优化坦克的移动方式
+        按下方向键坦克持续移动
+        松开方向键坦克停止移动
 """
-import pygame
+
+import pygame, time
 
 _display = pygame.display
+version = "V1.5"
 
 
 class MainGame():
-    __SCREEN_WIDTH = 800
-    __SCREEN_HEIGHT = 600
+    SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = 600
     # 窗口对象
     window = None
     P1_TANK = None
@@ -19,9 +22,9 @@ class MainGame():
     def startGame(self):
         pygame.display.init()
         # 加载游戏窗口
-        MainGame.window = _display.set_mode([MainGame.__SCREEN_WIDTH, MainGame.__SCREEN_HEIGHT])
+        MainGame.window = _display.set_mode([MainGame.SCREEN_WIDTH, MainGame.SCREEN_HEIGHT])
         # 设置游戏标题
-        _display.set_caption("坦克大战v1.3")
+        _display.set_caption("坦克大战" + version)
         # 创建一个坦克
         MainGame.P1_TANK = Tank(375, 250)
         while True:
@@ -33,8 +36,13 @@ class MainGame():
             MainGame.window.blit(self.drawText('剩余敌方坦克%d辆' % 5), (5, 5))
             # 加载我方坦克
             MainGame.P1_TANK.display_tank()
+            # 调用我方坦克的移动方法
+            if not MainGame.P1_TANK.stop:
+                MainGame.P1_TANK.move()
             # 刷新屏幕
             _display.update()
+            # 主逻辑休眠
+            time.sleep(0.02)
 
     # 事件处理方法
     def getEvent(self):
@@ -49,26 +57,30 @@ class MainGame():
                 if event.key == pygame.K_LEFT:
                     print("向左移动")
                     MainGame.P1_TANK.direction = 'L'
-                    # 修改坦克的坐标位置
-                    if MainGame.P1_TANK.rect.left > 0:
-                        MainGame.P1_TANK.rect.left -= MainGame.P1_TANK.speed
+                    # MainGame.P1_TANK.move()
+                    # 坦克移动的开关控制
+                    MainGame.P1_TANK.stop = False
                 elif event.key == pygame.K_RIGHT:
                     print("向右移动")
                     MainGame.P1_TANK.direction = 'R'
-                    if MainGame.P1_TANK.rect.left <= (MainGame.__SCREEN_WIDTH - MainGame.P1_TANK.rect.width):
-                        MainGame.P1_TANK.rect.left += MainGame.P1_TANK.speed
+                    # MainGame.P1_TANK.move()
+                    MainGame.P1_TANK.stop = False
                 elif event.key == pygame.K_UP:
                     print("向上移动")
                     MainGame.P1_TANK.direction = 'U'
-                    if MainGame.P1_TANK.rect.top > 0:
-                        MainGame.P1_TANK.rect.top -= MainGame.P1_TANK.speed
+                    # MainGame.P1_TANK.move()
+                    MainGame.P1_TANK.stop = False
                 elif event.key == pygame.K_DOWN:
                     print("向下移动")
                     MainGame.P1_TANK.direction = 'D'
-                    if MainGame.P1_TANK.rect.top <= (MainGame.__SCREEN_HEIGHT - MainGame.P1_TANK.rect.height):
-                        MainGame.P1_TANK.rect.top += MainGame.P1_TANK.speed
+                    # MainGame.P1_TANK.move()
+                    MainGame.P1_TANK.stop = False
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
+
+            # 按键松开事件处理
+            if event.type == pygame.KEYUP:
+                MainGame.P1_TANK.stop = True
 
     # 给一个字符串，返回一个包含字符串内容的表面(surface)
     def drawText(self, content):
@@ -102,7 +114,7 @@ class Tank(BaseItem):
             'U': pygame.image.load('img/p1tankU.gif'),
             'D': pygame.image.load('img/p1tankD.gif'),
             'L': pygame.image.load('img/p1tankL.gif'),
-            'R':pygame.image.load('img/p1tankR.gif'),
+            'R': pygame.image.load('img/p1tankR.gif'),
         }
         self.direction = 'U'
         self.image = self.images[self.direction]
@@ -110,6 +122,8 @@ class Tank(BaseItem):
         self.rect.left = left
         self.rect.top = top
         self.speed = 5
+        # stop变量， 用来控制坦克是否应该移动的开关
+        self.stop = True
 
     # 展示坦克
     def display_tank(self):
@@ -117,6 +131,22 @@ class Tank(BaseItem):
         self.image = self.images[self.direction]
         # 将坦克加入到窗口中
         MainGame.window.blit(self.image, self.rect)
+
+    # 坦克移动方向
+    def move(self):
+        # 修改tank的坐标：取决于坦克的方向
+        if self.direction == 'U':
+            if self.rect.top > 0:
+                self.rect.top -= self.speed
+        elif self.direction == 'D':
+            if self.rect.top < MainGame.SCREEN_HEIGHT - MainGame.P1_TANK.rect.height:
+                self.rect.top += self.speed
+        elif self.direction == 'L':
+            if self.rect.left > 0:
+                self.rect.left -= self.speed
+        elif self.direction == 'R':
+            if self.rect.left < MainGame.SCREEN_WIDTH - MainGame.P1_TANK.rect.width:
+                self.rect.left += self.speed
 
 
 class MyTank(Tank):
@@ -142,4 +172,3 @@ class Music():
 game = MainGame()
 game.startGame()
 # game.drawText('a')
-
