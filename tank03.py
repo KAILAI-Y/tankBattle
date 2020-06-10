@@ -1,9 +1,8 @@
 """
-v1.2 新增：
-1.实现左上角剩余敌方坦克提示
-    a.选一个字体
-    b.使用指定的字体绘制文字
-    c.将小画布贴到窗口中
+v1.3 新增功能：
+    1.引入精灵类
+    2. 完善坦克类的封装
+    3. 让坦克在窗口中提示
 """
 import pygame
 
@@ -14,25 +13,27 @@ class MainGame():
     __SCREEN_WIDTH = 800
     __SCREEN_HEIGHT = 600
     # 窗口对象
-    __window = None
+    window = None
+    P1_TANK = None
 
     # 开始游戏
     def startGame(self):
         pygame.display.init()
         # 加载游戏窗口
-        MainGame.__window = _display.set_mode([MainGame.__SCREEN_WIDTH, MainGame.__SCREEN_HEIGHT])
+        MainGame.window = _display.set_mode([MainGame.__SCREEN_WIDTH, MainGame.__SCREEN_HEIGHT])
         # 设置游戏标题
-        _display.set_caption("坦克大战v1.2")
+        _display.set_caption("坦克大战v1.3")
+        # 创建一个坦克
+        MainGame.P1_TANK = Tank(600, 250)
         while True:
             # 渲染背景
-            MainGame.__window.fill(pygame.Color(0, 0, 255))
-
+            MainGame.window.fill(pygame.Color(0, 0, 255))
             # 调用事件处理的方法
             self.getEvent()
-
             # 将带有文字的Surface绘制到窗口中
-            MainGame.__window.blit(self.drawText('剩余敌方坦克%d辆' % 5), (5, 5))
-
+            MainGame.window.blit(self.drawText('剩余敌方坦克%d辆' % 5), (5, 5))
+            # 加载我方坦克
+            MainGame.P1_TANK.display_tank()
             # 刷新屏幕
             _display.update()
 
@@ -86,16 +87,24 @@ class BaseItem(pygame.sprite.Sprite):
 class Tank(BaseItem):
     def __init__(self, left, top):
         self.images = {
-            'U': pygame.image.load(),
-            'D':
-            'L':
-            'R':
+            'U': pygame.image.load('img/p1tankU.gif'),
+            'D': pygame.image.load('img/p1tankD.gif'),
+            'L': pygame.image.load('img/p1tankL.gif'),
+            'R':pygame.image.load('img/p1tankR.gif'),
         }
-        self.direction = None
-        self.image = None
-        self.rect = None
+        self.direction = 'U'
+        self.image = self.images[self.direction]
+        self.rect = self.image.get_rect()
+        self.rect.left = left
+        self.rect.top = top
         self.speed = 5
 
+    # 展示坦克
+    def display_tank(self):
+        # 设置坦克图片
+        self.image = self.images[self.direction]
+        # 将坦克加入到窗口中
+        MainGame.window.bilt(self.image, self.rect)
 
 
 class MyTank(Tank):
