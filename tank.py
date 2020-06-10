@@ -1,8 +1,7 @@
 """
-v1.3 新增功能：
-    1.引入精灵类
-    2. 完善坦克类的封装
-    3. 让坦克在窗口中提示
+v1.4 新增功能：
+    1.实现坦克的移动
+
 """
 import pygame
 
@@ -50,15 +49,24 @@ class MainGame():
                 if event.key == pygame.K_LEFT:
                     print("向左移动")
                     MainGame.P1_TANK.direction = 'L'
+                    # 修改坦克的坐标位置
+                    if MainGame.P1_TANK.rect.left > 0:
+                        MainGame.P1_TANK.rect.left -= MainGame.P1_TANK.speed
                 elif event.key == pygame.K_RIGHT:
                     print("向右移动")
                     MainGame.P1_TANK.direction = 'R'
+                    if MainGame.P1_TANK.rect.left <= (MainGame.__SCREEN_WIDTH - MainGame.P1_TANK.rect.width):
+                        MainGame.P1_TANK.rect.left += MainGame.P1_TANK.speed
                 elif event.key == pygame.K_UP:
                     print("向上移动")
                     MainGame.P1_TANK.direction = 'U'
+                    if MainGame.P1_TANK.rect.top > 0:
+                        MainGame.P1_TANK.rect.top -= MainGame.P1_TANK.speed
                 elif event.key == pygame.K_DOWN:
                     print("向下移动")
                     MainGame.P1_TANK.direction = 'D'
+                    if MainGame.P1_TANK.rect.top <= (MainGame.__SCREEN_HEIGHT - MainGame.P1_TANK.rect.height):
+                        MainGame.P1_TANK.rect.top += MainGame.P1_TANK.speed
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
 
@@ -134,3 +142,4 @@ class Music():
 game = MainGame()
 game.startGame()
 # game.drawText('a')
+
