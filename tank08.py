@@ -19,6 +19,8 @@ class MainGame():
     # 敌方坦克列表， 用来存储所有的敌方坦克
     enemy_tank_list = []
     enemy_tank_count = 5
+    # 新增我方子弹列表
+    bullet_list = []
 
     # 开始游戏
     def startGame(self):
@@ -48,6 +50,11 @@ class MainGame():
             # 调用我方坦克的移动方法
             if not MainGame.P1_TANK.stop:
                 MainGame.P1_TANK.move()
+
+            # 新增子弹在屏幕上完成绘制
+            for bullet in MainGame.bullet_list:
+                bullet.display_bullet()
+
             # 刷新屏幕
             _display.update()
             # 主逻辑休眠
@@ -96,6 +103,8 @@ class MainGame():
                     MainGame.P1_TANK.stop = False
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
+                    # 我方坦克发射子弹
+                    MainGame.P1_TANK.fire()
 
             # 按键松开事件处理
             if event.type == pygame.KEYUP:
@@ -168,6 +177,13 @@ class Tank(BaseItem):
             if self.rect.left < MainGame.SCREEN_WIDTH - MainGame.P1_TANK.rect.width:
                 self.rect.left += self.speed
 
+    # 新增射击方法
+    def fire(self):
+        # 创建子弹对象
+        bullet = Bullet(self)
+        # 加入到列表
+        MainGame.bullet_list.append(bullet)
+
 
 class MyTank(Tank):
     pass
@@ -228,7 +244,29 @@ class EnemyTank(Tank):
 
 
 class Bullet(BaseItem):
-    pass
+    def __init(self, tank):
+        self.image = pygame.image.load('img/bullet.gif')
+        self.direction = tank.direction
+        self.speed = MainGame.P1_TANK.speed * 1.5
+        # self.rect = tank.rect
+        self.rect = self.image.get_rect()
+        # 子弹初始化位置要根据坦克的的方向进行调整
+        if self.direction == 'U':
+            self.rect.left += tank.rect.left + tank.rect.width/2 - self.rect.width/2
+            self.rect.top = tank.rect.top
+        elif self.direction == 'D':
+            self.rect.left = tank.rect.left + tank.rect.width / 2 - self.rect.width / 2
+            self.rect.top = tank.rect.top + tank.rect.height
+        elif self.direction == 'L':
+            self.rect.left = tank.rect.left - self.rect.width / 2 - self.rect.width / 2
+            self.rect.top = tank.rect.top + tank.rect.width / 2 - self.rect.width / 2
+        elif self.direction == 'R':
+            self.rect.left = tank.rect.left + tank.rect.width
+            self.rect.top = tank.rect.top + tank.rect.width / 2 - self.rect.width / 2
+
+    # 将子弹加入到窗口中
+    def display_bullet(self):
+        MainGame.window.blit(self.image, self.rect)
 
 
 class Explode():
