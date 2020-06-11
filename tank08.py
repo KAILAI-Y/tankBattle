@@ -1,12 +1,13 @@
 """
 v1.8 新增功能：
-    1. 实现敌方坦克的随机移动
+    1. 完善子弹类
+    2. 我方坦克中新增射击方法（射击之后，产生子弹）
 """
 
 import pygame, time, random
 
 _display = pygame.display
-version = "V1.6"
+version = "V1.8"
 
 
 class MainGame():
