@@ -1,7 +1,6 @@
 """
-v1.6 新增功能：
-    1. 敌方坦克类的实现
-    2. 随机创建5个敌方坦克（坦克位置， 随机
+v1.7 新增功能：
+    1. 实现敌方坦克的随机移动
 """
 
 import pygame, time, random
@@ -43,14 +42,15 @@ class MainGame():
             # 遍历敌方坦克加入到窗口中
             for eTank in MainGame.enemy_tank_list:
                 eTank.display_enemy_tank()
-                eTank.move()
+                # 移动方式更新
+                eTank.random_move()
             # 调用我方坦克的移动方法
             if not MainGame.P1_TANK.stop:
                 MainGame.P1_TANK.move()
             # 刷新屏幕
             _display.update()
             # 主逻辑休眠
-            time.sleep(0.02)
+            time.sleep(0.01)
 
     # 新增创建敌方坦克的方法
     def creatEnemyTank(self):
@@ -139,7 +139,7 @@ class Tank(BaseItem):
         self.rect = self.image.get_rect()
         self.rect.left = left
         self.rect.top = top
-        self.speed = 1
+        self.speed = 5
 
         # stop变量， 用来控制坦克是否应该移动的开关
         self.stop = True
@@ -193,6 +193,9 @@ class EnemyTank(Tank):
         # stop变量， 用来控制坦克是否应该移动的开关
         self.stop = False
 
+        # 步数控制
+        self.step = 10
+
     def random_direction(self):
         num = random.randint(1, 4)
         if num == 1:
@@ -205,6 +208,15 @@ class EnemyTank(Tank):
             self.direction = 'R'
         return self.direction
 
+    # 随机移动方法
+    def random_move(self):
+        if self.step == 0:
+            self.random_direction()
+            # 如果将step复位到10
+            self.step = 10
+        else:
+            self.move()
+            self.step -= 1
 
     def display_enemy_tank(self):
         # 重新设置图片
@@ -212,6 +224,7 @@ class EnemyTank(Tank):
         # 将坦克加入到窗口中
         MainGame.window.blit(self.image, self.rect)
         # super().display_tank()
+
 
 class Bullet(BaseItem):
     pass
