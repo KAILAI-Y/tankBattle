@@ -6,7 +6,7 @@ v1.7 新增功能：
 import pygame, time, random
 
 _display = pygame.display
-version = "V1.6"
+version = "V1.7"
 
 
 class MainGame():
