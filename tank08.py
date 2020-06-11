@@ -142,7 +142,7 @@ class Tank(BaseItem):
             'U': pygame.image.load('img/p1tankU.gif'),
             'D': pygame.image.load('img/p1tankD.gif'),
             'L': pygame.image.load('img/p1tankL.gif'),
-            'R': pygame.image.load('img/p1tankR.gif'),
+            'R': pygame.image.load('img/p1tankR.gif')
         }
         self.direction = 'U'
         self.image = self.images[self.direction]
@@ -196,7 +196,7 @@ class EnemyTank(Tank):
             'U': pygame.image.load('img/enemy1U.gif'),
             'D': pygame.image.load('img/enemy1D.gif'),
             'L': pygame.image.load('img/enemy1L.gif'),
-            'R': pygame.image.load('img/enemy1R.gif'),
+            'R': pygame.image.load('img/enemy1R.gif')
         }
         # 初始方向（随机）
         self.direction = self.random_direction()
@@ -244,7 +244,7 @@ class EnemyTank(Tank):
 
 
 class Bullet(BaseItem):
-    def __init(self, tank):
+    def __init__(self, tank):
         self.image = pygame.image.load('img/bullet.gif')
         self.direction = tank.direction
         self.speed = MainGame.P1_TANK.speed * 1.5
@@ -252,8 +252,8 @@ class Bullet(BaseItem):
         self.rect = self.image.get_rect()
         # 子弹初始化位置要根据坦克的的方向进行调整
         if self.direction == 'U':
-            self.rect.left += tank.rect.left + tank.rect.width/2 - self.rect.width/2
-            self.rect.top = tank.rect.top
+            self.rect.left += tank.rect.left + tank.rect.width / 2 - self.rect.width / 2
+            self.rect.top = tank.rect.top - tank.rect.height
         elif self.direction == 'D':
             self.rect.left = tank.rect.left + tank.rect.width / 2 - self.rect.width / 2
             self.rect.top = tank.rect.top + tank.rect.height
