@@ -1,8 +1,6 @@
 """
-v1.9 新增功能：
-    1. 子弹的移动
-    修改bug：
-        坦克不能移动射击
+v1.10 新增功能：
+    1. 敌方坦克完成射击
 """
 
 import pygame
@@ -10,7 +8,7 @@ import random
 import time
 
 _display = pygame.display
-version = "V1.9"
+version = "V1.10"
 
 
 class MainGame():
