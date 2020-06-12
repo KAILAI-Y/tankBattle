@@ -20,6 +20,10 @@ class MainGame():
     # 敌方坦克列表， 用来存储所有的敌方坦克
     enemy_tank_list = []
     enemy_tank_count = 5
+
+    # 新增存储敌方子弹的列表
+    enemy_bullet_list = []
+
     # 新增我方子弹列表
     bullet_list = []
 
@@ -48,6 +52,12 @@ class MainGame():
                 eTank.display_enemy_tank()
                 # 移动方式更新
                 eTank.random_move()
+                # 敌方坦克调用射击方法
+                eBullet = eTank.random_fire()
+                # 在random_fire()返回值可能为None， 保证不是None再将子弹存储起来
+                if eBullet:
+                    MainGame.enemy_bullet_list.append(eBullet)
+
             # 调用我方坦克的移动方法
             if not MainGame.P1_TANK.stop:
                 MainGame.P1_TANK.move()
@@ -61,6 +71,15 @@ class MainGame():
                 else:
                     # 删除子弹
                     MainGame.bullet_list.remove(bullet)
+            # 新增敌方子弹的渲染
+            for eBullet in MainGame.enemy_bullet_list:
+                # 新增调用子弹移动
+                eBullet.bullet_move()
+                if eBullet.live:
+                    eBullet.display_bullet()
+                else:
+                    # 删除子弹
+                    MainGame.enemy_bullet_list.remove(eBullet)
 
             # 刷新屏幕
             _display.update()
@@ -114,7 +133,8 @@ class MainGame():
                     # MainGame.P1_TANK.fire()
                     # 新增我方坦克发射子弹的数量控制
                     if len(MainGame.bullet_list) < 3:
-                        MainGame.P1_TANK.fire()
+                        bullet = MainGame.P1_TANK.fire()
+                        MainGame.bullet_list.append(bullet)
 
             # 按键松开事件处理
             if event.type == pygame.KEYUP:
@@ -162,7 +182,7 @@ class Tank(BaseItem):
         self.rect = self.image.get_rect()
         self.rect.left = left
         self.rect.top = top
-        self.speed = 5
+        self.speed = 10
 
         # stop变量， 用来控制坦克是否应该移动的开关
         self.stop = True
@@ -195,7 +215,8 @@ class Tank(BaseItem):
         # 创建子弹对象
         bullet = Bullet(self)
         # 加入到列表
-        MainGame.bullet_list.append(bullet)
+        # MainGame.bullet_list.append(bullet)
+        return bullet
 
 
 class MyTank(Tank):
@@ -247,6 +268,13 @@ class EnemyTank(Tank):
         else:
             self.move()
             self.step -= 1
+
+    # 新增随机射击方法
+    def random_fire(self):
+        num = random.randint(1, 50)
+        if num < 3:
+            eBullet = self.fire()
+            return eBullet
 
     def display_enemy_tank(self):
         # 重新设置图片
