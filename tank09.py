@@ -1,7 +1,8 @@
 """
-v1.8 新增功能：
-    1. 完善子弹类
-    2. 我方坦克中新增射击方法（射击之后，产生子弹）
+v1.9 新增功能：
+    1. 子弹的移动
+    修改bug：
+        坦克不能移动射击
 """
 
 import pygame, time, random
@@ -53,7 +54,13 @@ class MainGame():
 
             # 新增子弹在屏幕上完成绘制
             for bullet in MainGame.bullet_list:
-                bullet.display_bullet()
+                # 新增调用子弹移动
+                bullet.bullet_move()
+                if bullet.live:
+                    bullet.display_bullet()
+                else:
+                    # 删除子弹
+                    MainGame.bullet_list.remove(bullet)
 
             # 刷新屏幕
             _display.update()
@@ -104,11 +111,17 @@ class MainGame():
                 elif event.key == pygame.K_SPACE:
                     print("攻击")
                     # 我方坦克发射子弹
-                    MainGame.P1_TANK.fire()
+                    # MainGame.P1_TANK.fire()
+                    # 新增我方坦克发射子弹的数量控制
+                    if len(MainGame.bullet_list) < 3:
+                        MainGame.P1_TANK.fire()
 
             # 按键松开事件处理
             if event.type == pygame.KEYUP:
-                MainGame.P1_TANK.stop = True
+                # MainGame.P1_TANK.stop = True
+                # 弹出的不是空格键再停止
+                if event.key != pygame.K_SPACE:
+                    MainGame.P1_TANK.stop = True
 
     # 给一个字符串，返回一个包含字符串内容的表面(surface)
     def drawText(self, content):
@@ -263,6 +276,31 @@ class Bullet(BaseItem):
         elif self.direction == 'R':
             self.rect.left = tank.rect.left + tank.rect.width
             self.rect.top = tank.rect.top + tank.rect.width / 2 - self.rect.width / 2
+        # 新增记录子弹是否碰撞到墙壁或者坦克
+        self.live = True
+
+    # 新增子弹的移动方法
+    def bullet_move(self):
+        if self.direction == 'U':
+            if self.rect.top > 0:
+                self.rect.top -= self.speed
+            else:
+                self.live = False
+        elif self.direction == 'D':
+            if self.rect.top < MainGame.SCREEN_HEIGHT:
+                self.rect.top += self.speed
+            else:
+                self.live = False
+        elif self.direction == 'L':
+            if self.rect.left > 0:
+                self.rect.left -= self.speed
+            else:
+                self.live = False
+        elif self.direction == 'R':
+            if self.rect.left < MainGame.SCREEN_WIDTH:
+                self.rect.left += self.speed
+            else:
+                self.live = False
 
     # 将子弹加入到窗口中
     def display_bullet(self):
