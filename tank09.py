@@ -5,10 +5,12 @@ v1.9 新增功能：
         坦克不能移动射击
 """
 
-import pygame, time, random
+import pygame
+import random
+import time
 
 _display = pygame.display
-version = "V1.8"
+version = "V1.9"
 
 
 class MainGame():
