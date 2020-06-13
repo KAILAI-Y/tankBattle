@@ -1,6 +1,8 @@
 """
-v1.10 新增功能：
-    1. 敌方坦克完成射击
+v1.11 新增功能：
+    1.优化主逻辑中业务代码
+    2.新增我方子弹与敌方坦克的碰撞
+        子弹新增方法 hit_tank()
 """
 
 import pygame
@@ -8,7 +10,7 @@ import random
 import time
 
 _display = pygame.display
-version = "V1.10"
+version = "V1.11"
 
 
 class MainGame():
@@ -44,42 +46,16 @@ class MainGame():
             # 调用事件处理的方法
             self.getEvent()
             # 将带有文字的Surface绘制到窗口中
-            MainGame.window.blit(self.drawText('剩余敌方坦克%d辆' % 5), (5, 5))
-            # 加载我方坦克
-            MainGame.P1_TANK.display_tank()
-            # 遍历敌方坦克加入到窗口中
-            for eTank in MainGame.enemy_tank_list:
-                eTank.display_enemy_tank()
-                # 移动方式更新
-                eTank.random_move()
-                # 敌方坦克调用射击方法
-                eBullet = eTank.random_fire()
-                # 在random_fire()返回值可能为None， 保证不是None再将子弹存储起来
-                if eBullet:
-                    MainGame.enemy_bullet_list.append(eBullet)
+            MainGame.window.blit(self.drawText('剩余敌方坦克%d辆' % len(MainGame.enemy_tank_list)), (5, 5))
+            # 调用展示我方坦克的方法
+            self.show_P1_TANK()
+            # 调用展示敌方坦克的方法
+            self.show_enemy_tank()
+            # 调用展示我方坦克的方法
+            self.show_bullet()
+            # 调用展示敌方坦克的方法
+            self.show_enemey_bullet()
 
-            # 调用我方坦克的移动方法
-            if not MainGame.P1_TANK.stop:
-                MainGame.P1_TANK.move()
-
-            # 新增子弹在屏幕上完成绘制
-            for bullet in MainGame.bullet_list:
-                # 新增调用子弹移动
-                bullet.bullet_move()
-                if bullet.live:
-                    bullet.display_bullet()
-                else:
-                    # 删除子弹
-                    MainGame.bullet_list.remove(bullet)
-            # 新增敌方子弹的渲染
-            for eBullet in MainGame.enemy_bullet_list:
-                # 新增调用子弹移动
-                eBullet.bullet_move()
-                if eBullet.live:
-                    eBullet.display_bullet()
-                else:
-                    # 删除子弹
-                    MainGame.enemy_bullet_list.remove(eBullet)
 
             # 刷新屏幕
             _display.update()
@@ -95,6 +71,57 @@ class MainGame():
             # 创建敌方坦克
             enemy_tank = EnemyTank(random_left*100, 150, random_speed)
             MainGame.enemy_tank_list.append(enemy_tank)
+
+    # 优化我方坦克展示
+    def show_P1_TANK(self):
+        # 加载我方坦克
+        MainGame.P1_TANK.display_tank()
+        # 调用我方坦克的移动方法
+        if not MainGame.P1_TANK.stop:
+            MainGame.P1_TANK.move()
+
+    # 优化敌方坦克展示
+    def show_enemy_tank(self):
+        # 遍历敌方坦克加入到窗口中
+        for eTank in MainGame.enemy_tank_list:
+            # 移动方式更新
+            eTank.random_move()
+            # 根绝live判断坦克是否应该渲染
+            if eTank.live:
+                eTank.display_enemy_tank()
+            else:
+                MainGame.enemy_tank_list.remove(eTank)
+            # 敌方坦克调用射击方法
+            eBullet = eTank.random_fire()
+            # 在random_fire()返回值可能为None， 保证不是None再将子弹存储起来
+            if eBullet:
+                MainGame.enemy_bullet_list.append(eBullet)
+
+    # 优化我方子弹展示
+    def show_bullet(self):
+        # 新增子弹在屏幕上完成绘制
+        for bullet in MainGame.bullet_list:
+            # 新增调用子弹移动
+            bullet.bullet_move()
+            if bullet.live:
+                bullet.display_bullet()
+                # 调用子弹碰撞方法
+                bullet.hit_tank()
+            else:
+                # 删除子弹
+                MainGame.bullet_list.remove(bullet)
+
+    # 优化敌方子弹展示
+    def show_enemey_bullet(self):
+        # 新增敌方子弹的渲染
+        for eBullet in MainGame.enemy_bullet_list:
+            # 新增调用子弹移动
+            eBullet.bullet_move()
+            if eBullet.live:
+                eBullet.display_bullet()
+            else:
+                # 删除子弹
+                MainGame.enemy_bullet_list.remove(eBullet)
 
     # 事件处理方法
     def getEvent(self):
@@ -186,6 +213,8 @@ class Tank(BaseItem):
 
         # stop变量， 用来控制坦克是否应该移动的开关
         self.stop = True
+        # 新增属性live用来判断坦克是否还在
+        self.live = True
 
     # 展示坦克
     def display_tank(self):
@@ -246,6 +275,7 @@ class EnemyTank(Tank):
 
         # 步数控制
         self.step = 10
+        self.live = True
 
     def random_direction(self):
         num = random.randint(1, 4)
@@ -330,6 +360,14 @@ class Bullet(BaseItem):
             else:
                 self.live = False
 
+    # 新增子弹与坦克的逻辑方法
+    def hit_tank(self):
+        for eTank in MainGame.enemy_tank_list:
+            result = pygame.sprite.collide_rect(eTank, self)
+            if result:
+                self.live = False
+                eTank.live = False
+
     # 将子弹加入到窗口中
     def display_bullet(self):
         MainGame.window.blit(self.image, self.rect)
@@ -345,4 +383,3 @@ class Music():
 
 game = MainGame()
 game.startGame()
-# game.drawText('a')
