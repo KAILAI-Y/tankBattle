@@ -1,8 +1,6 @@
 """
-v1.11 新增功能：
-    1.优化主逻辑中业务代码
-    2.新增我方子弹与敌方坦克的碰撞
-        子弹新增方法 hit_tank()
+v1.12 新增功能：
+    1.新增爆炸效果
 """
 
 import pygame
@@ -28,6 +26,8 @@ class MainGame():
 
     # 新增我方子弹列表
     bullet_list = []
+    # 存储爆炸效果的列表
+    explode_list = []
 
     # 开始游戏
     def startGame(self):
@@ -55,8 +55,8 @@ class MainGame():
             self.show_bullet()
             # 调用展示敌方坦克的方法
             self.show_enemey_bullet()
-
-
+            # 调用展示爆炸效果的方法
+            self.show_explode()
             # 刷新屏幕
             _display.update()
             # 主逻辑休眠
@@ -69,7 +69,7 @@ class MainGame():
             random_left = random.randint(0, 8)
             random_speed = random.randint(5, 10)
             # 创建敌方坦克
-            enemy_tank = EnemyTank(random_left*100, 150, random_speed)
+            enemy_tank = EnemyTank(random_left * 100, 150, random_speed)
             MainGame.enemy_tank_list.append(enemy_tank)
 
     # 优化我方坦克展示
@@ -123,6 +123,13 @@ class MainGame():
                 # 删除子弹
                 MainGame.enemy_bullet_list.remove(eBullet)
 
+    # 展示爆炸效果的方法
+    def show_explode(self):
+        for explode in MainGame.explode_list:
+            if explode.live:
+                explode.display_explode()
+            else:
+                MainGame.explode_list.remove(explode)
     # 事件处理方法
     def getEvent(self):
         # 获取所有事件
@@ -367,14 +374,41 @@ class Bullet(BaseItem):
             if result:
                 self.live = False
                 eTank.live = False
+                # 打中产生爆炸效果，装进爆炸列表中
+                explode = Explode(eTank.rect)
+                MainGame.explode_list.append(explode)
 
     # 将子弹加入到窗口中
     def display_bullet(self):
         MainGame.window.blit(self.image, self.rect)
 
 
-class Explode():
-    pass
+# 新增爆炸效果类
+class Explode(BaseItem):
+    def __init__(self, rect):
+        self.images = [
+            pygame.image.load('img/blast0.gif'),
+            pygame.image.load('img/blast1.gif'),
+            pygame.image.load('img/blast2.gif'),
+            pygame.image.load('img/blast3.gif'),
+            pygame.image.load('img/blast4.gif'),
+            pygame.image.load('img/blast5.gif'),
+            pygame.image.load('img/blast6.gif'),
+            pygame.image.load('img/blast7.gif')
+        ]
+        self.rect = rect
+        self.image = self.images[0]
+        self.live = True
+        # 记录当前图片的索引
+        self.step = 0
+
+    def display_explode(self):
+        if self.step < len(self.images):
+            MainGame.window.blit(self.image, self.rect)
+            self.step += 1
+        else:
+            self.live = False
+            self.step = 0
 
 
 class Music():
