@@ -1,6 +1,6 @@
 """
-v1.12 新增功能：
-    1.新增爆炸效果
+v1.13 新增功能：
+    1.敌方坦克与我方坦克的碰撞
 """
 
 import pygame
@@ -8,7 +8,7 @@ import random
 import time
 
 _display = pygame.display
-version = "V1.11"
+version = "V1.13"
 
 
 class MainGame():
@@ -75,10 +75,14 @@ class MainGame():
     # 优化我方坦克展示
     def show_P1_TANK(self):
         # 加载我方坦克
-        MainGame.P1_TANK.display_tank()
-        # 调用我方坦克的移动方法
-        if not MainGame.P1_TANK.stop:
-            MainGame.P1_TANK.move()
+        if MainGame.P1_TANK and MainGame.P1_TANK.live:
+            MainGame.P1_TANK.display_tank()
+            # 调用我方坦克的移动方法
+            if not MainGame.P1_TANK.stop:
+                MainGame.P1_TANK.move()
+        else:
+            del MainGame.P1_TANK
+            MainGame.P1_TANK = None
 
     # 优化敌方坦克展示
     def show_enemy_tank(self):
@@ -119,6 +123,8 @@ class MainGame():
             eBullet.bullet_move()
             if eBullet.live:
                 eBullet.display_bullet()
+                # 调用敌方子弹与我方坦克的碰撞
+                eBullet.hit_my_tank()
             else:
                 # 删除子弹
                 MainGame.enemy_bullet_list.remove(eBullet)
@@ -140,41 +146,46 @@ class MainGame():
                 print("退出游戏")
                 self.gameOver()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    print("向左移动")
-                    MainGame.P1_TANK.direction = 'L'
-                    # MainGame.P1_TANK.move()
-                    # 坦克移动的开关控制
-                    MainGame.P1_TANK.stop = False
-                elif event.key == pygame.K_RIGHT:
-                    print("向右移动")
-                    MainGame.P1_TANK.direction = 'R'
-                    # MainGame.P1_TANK.move()
-                    MainGame.P1_TANK.stop = False
-                elif event.key == pygame.K_UP:
-                    print("向上移动")
-                    MainGame.P1_TANK.direction = 'U'
-                    # MainGame.P1_TANK.move()
-                    MainGame.P1_TANK.stop = False
-                elif event.key == pygame.K_DOWN:
-                    print("向下移动")
-                    MainGame.P1_TANK.direction = 'D'
-                    # MainGame.P1_TANK.move()
-                    MainGame.P1_TANK.stop = False
-                elif event.key == pygame.K_SPACE:
-                    print("攻击")
-                    # 我方坦克发射子弹
-                    # MainGame.P1_TANK.fire()
-                    # 新增我方坦克发射子弹的数量控制
-                    if len(MainGame.bullet_list) < 3:
-                        bullet = MainGame.P1_TANK.fire()
-                        MainGame.bullet_list.append(bullet)
+                if MainGame.P1_TANK and MainGame.P1_TANK.live:
+                    if event.key == pygame.K_LEFT:
+                        print("向左移动")
+                        MainGame.P1_TANK.direction = 'L'
+                        # MainGame.P1_TANK.move()
+                        # 坦克移动的开关控制
+                        MainGame.P1_TANK.stop = False
+                    elif event.key == pygame.K_RIGHT:
+                        print("向右移动")
+                        MainGame.P1_TANK.direction = 'R'
+                        # MainGame.P1_TANK.move()
+                        MainGame.P1_TANK.stop = False
+                    elif event.key == pygame.K_UP:
+                        print("向上移动")
+                        MainGame.P1_TANK.direction = 'U'
+                        # MainGame.P1_TANK.move()
+                        MainGame.P1_TANK.stop = False
+                    elif event.key == pygame.K_DOWN:
+                        print("向下移动")
+                        MainGame.P1_TANK.direction = 'D'
+                        # MainGame.P1_TANK.move()
+                        MainGame.P1_TANK.stop = False
+                    elif event.key == pygame.K_SPACE:
+                        print("攻击")
+                        # 我方坦克发射子弹
+                        # MainGame.P1_TANK.fire()
+                        # 新增我方坦克发射子弹的数量控制
+                        if len(MainGame.bullet_list) < 3:
+                            bullet = MainGame.P1_TANK.fire()
+                            MainGame.bullet_list.append(bullet)
+                if event.key == pygame.K_ESCAPE and not MainGame.P1_TANK:
+                    print("复活")
+                    MainGame.P1_TANK = Tank(375, 250)
 
             # 按键松开事件处理
             if event.type == pygame.KEYUP:
                 # MainGame.P1_TANK.stop = True
                 # 弹出的不是空格键再停止
-                if event.key != pygame.K_SPACE:
+
+                if event.key != pygame.K_SPACE and MainGame.P1_TANK and MainGame.P1_TANK.live:
                     MainGame.P1_TANK.stop = True
 
     # 给一个字符串，返回一个包含字符串内容的表面(surface)
@@ -237,13 +248,13 @@ class Tank(BaseItem):
             if self.rect.top > 0:
                 self.rect.top -= self.speed
         elif self.direction == 'D':
-            if self.rect.top < MainGame.SCREEN_HEIGHT - MainGame.P1_TANK.rect.height:
+            if self.rect.top < MainGame.SCREEN_HEIGHT - self.rect.height:
                 self.rect.top += self.speed
         elif self.direction == 'L':
             if self.rect.left > 0:
                 self.rect.left -= self.speed
         elif self.direction == 'R':
-            if self.rect.left < MainGame.SCREEN_WIDTH - MainGame.P1_TANK.rect.width:
+            if self.rect.left < MainGame.SCREEN_WIDTH - self.rect.width:
                 self.rect.left += self.speed
 
     # 新增射击方法
@@ -325,7 +336,7 @@ class Bullet(BaseItem):
     def __init__(self, tank):
         self.image = pygame.image.load('img/bullet.gif')
         self.direction = tank.direction
-        self.speed = MainGame.P1_TANK.speed * 1.5
+        self.speed = 10 * 1.5
         # self.rect = tank.rect
         self.rect = self.image.get_rect()
         # 子弹初始化位置要根据坦克的的方向进行调整
@@ -372,11 +383,27 @@ class Bullet(BaseItem):
         for eTank in MainGame.enemy_tank_list:
             result = pygame.sprite.collide_rect(eTank, self)
             if result:
-                self.live = False
-                eTank.live = False
                 # 打中产生爆炸效果，装进爆炸列表中
                 explode = Explode(eTank.rect)
                 MainGame.explode_list.append(explode)
+                self.live = False
+                eTank.live = False
+
+
+    # 新增敌方子弹与我方坦克的碰撞
+    def hit_my_tank(self):
+        for eBullet in MainGame.enemy_bullet_list:
+            if MainGame.P1_TANK and MainGame.P1_TANK.live:
+                result = pygame.sprite.collide_rect(eBullet, MainGame.P1_TANK)
+                if result:
+                    # 打中产生爆炸效果，装进爆炸列表中
+                    explode = Explode(MainGame.P1_TANK.rect)
+                    MainGame.explode_list.append(explode)
+                    eBullet.live = False
+                    MainGame.P1_TANK.live = False
+
+            else:
+                break
 
     # 将子弹加入到窗口中
     def display_bullet(self):
