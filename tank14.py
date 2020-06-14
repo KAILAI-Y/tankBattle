@@ -131,6 +131,8 @@ class MainGame():
                 bullet.display_bullet()
                 # 调用子弹碰撞方法
                 bullet.hit_tank()
+                # 调用子弹碰撞墙壁的方法
+                bullet.hit_wall()
             else:
                 # 删除子弹
                 MainGame.bullet_list.remove(bullet)
@@ -145,6 +147,8 @@ class MainGame():
                 eBullet.display_bullet()
                 # 调用敌方子弹与我方坦克的碰撞
                 eBullet.hit_my_tank()
+                # 调用子弹碰撞墙壁的方法
+                eBullet.hit_wall()
             else:
                 # 删除子弹
                 MainGame.enemy_bullet_list.remove(eBullet)
@@ -409,7 +413,6 @@ class Bullet(BaseItem):
                 self.live = False
                 eTank.live = False
 
-
     # 新增敌方子弹与我方坦克的碰撞
     def hit_my_tank(self):
         for eBullet in MainGame.enemy_bullet_list:
@@ -425,7 +428,15 @@ class Bullet(BaseItem):
             else:
                 break
 
+    # 新增子弹与墙壁的碰撞
+    def hit_wall(self):
+        for wall in MainGame.wall_list:
+            result = pygame.sprite.collide_rect(wall, self)
+            if result:
+                self.live = False
+
     # 将子弹加入到窗口中
+
     def display_bullet(self):
         MainGame.window.blit(self.image, self.rect)
 
@@ -458,7 +469,7 @@ class Explode(BaseItem):
             self.step = 0
 
 
-    # 新增墙壁类
+# 新增墙壁类
 class Wall(BaseItem):
     def __init__(self, left, top):
         self.image = pygame.image.load('img/steels.gif')
@@ -469,7 +480,6 @@ class Wall(BaseItem):
     def display_wall(self):
         # 将墙壁加到窗口中
         MainGame.window.blit(self.image, self.rect)
-
 
 
 class Music():
