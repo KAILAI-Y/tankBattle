@@ -1,6 +1,6 @@
 """
-v1.15 新增功能：
-    1.坦克与墙壁的碰撞检测
+v1.16 新增功能：
+    1.新增音效处理
 """
 
 import pygame
@@ -8,7 +8,7 @@ import random
 import time
 
 _display = pygame.display
-version = "V1.15"
+version = "V1.16"
 
 
 class MainGame():
@@ -36,6 +36,8 @@ class MainGame():
         pygame.display.init()
         # 加载游戏窗口
         MainGame.window = _display.set_mode([MainGame.SCREEN_WIDTH, MainGame.SCREEN_HEIGHT])
+        # 新增音效播放
+        self.play_bgm()
         # 设置游戏标题
         _display.set_caption("坦克大战" + version)
         # 创建一个坦克
@@ -68,6 +70,11 @@ class MainGame():
             _display.update()
             # 主逻辑休眠
             time.sleep(0.01)
+
+    # 新增播放音效的方法
+    def play_bgm(self):
+        m = Music('img/start.wav')
+        m.play_music(0)
 
     # 新增创建敌方坦克的方法
     def creatEnemyTank(self):
@@ -503,8 +510,15 @@ class Wall(BaseItem):
         MainGame.window.blit(self.image, self.rect)
 
 
+# 实现音效类的处理
 class Music():
-    pass
+    def __init__(self, music):
+        pygame.mixer.init()
+        self.music = music
+        pygame.mixer.music.load(self.music)
+
+    def play_music(self, count):
+        pygame.mixer.music.play(count)
 
 
 game = MainGame()
