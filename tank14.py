@@ -1,6 +1,8 @@
 """
-v1.13 新增功能：
-    1.敌方坦克与我方坦克的碰撞
+v1.14 新增功能：
+    1.新增墙壁类
+    2.子弹与墙壁的碰撞
+    3.坦克与墙壁的碰撞
 """
 
 import pygame
@@ -8,7 +10,7 @@ import random
 import time
 
 _display = pygame.display
-version = "V1.13"
+version = "V1.14"
 
 
 class MainGame():
@@ -28,6 +30,8 @@ class MainGame():
     bullet_list = []
     # 存储爆炸效果的列表
     explode_list = []
+    # 存储墙壁的列表
+    wall_list = []
 
     # 开始游戏
     def startGame(self):
@@ -40,6 +44,9 @@ class MainGame():
         MainGame.P1_TANK = Tank(375, 250)
         # 创建敌方坦克
         self.creatEnemyTank()
+        # 创建墙壁方法
+        self.creatWalls()
+
         while True:
             # 渲染背景
             MainGame.window.fill(pygame.Color(0, 0, 255))
@@ -47,6 +54,8 @@ class MainGame():
             self.getEvent()
             # 将带有文字的Surface绘制到窗口中
             MainGame.window.blit(self.drawText('剩余敌方坦克%d辆' % len(MainGame.enemy_tank_list)), (5, 5))
+            # 新增调用展示墙壁的方法
+            self.showWalls()
             # 调用展示我方坦克的方法
             self.show_P1_TANK()
             # 调用展示敌方坦克的方法
@@ -71,6 +80,17 @@ class MainGame():
             # 创建敌方坦克
             enemy_tank = EnemyTank(random_left * 100, 150, random_speed)
             MainGame.enemy_tank_list.append(enemy_tank)
+
+    # 新增创建墙壁的方法
+    def creatWalls(self):
+        for i in range(3):
+            wall = Wall(60*i, 280)
+            MainGame.wall_list.append(wall)
+
+    # 新增展示墙壁的方法
+    def showWalls(self):
+        for wall in MainGame.wall_list:
+            wall.display_wall()
 
     # 优化我方坦克展示
     def show_P1_TANK(self):
@@ -436,6 +456,20 @@ class Explode(BaseItem):
         else:
             self.live = False
             self.step = 0
+
+
+    # 新增墙壁类
+class Wall(BaseItem):
+    def __init__(self, left, top):
+        self.image = pygame.image.load('img/steels.gif')
+        self.rect = self.image.get_rect()
+        self.rect.left = left
+        self.rect.top = top
+
+    def display_wall(self):
+        # 将墙壁加到窗口中
+        MainGame.window.blit(self.image, self.rect)
+
 
 
 class Music():
