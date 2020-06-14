@@ -1,8 +1,6 @@
 """
-v1.14 新增功能：
-    1.新增墙壁类
-    2.子弹与墙壁的碰撞
-    3.坦克与墙壁的碰撞
+v1.15 新增功能：
+    1.坦克与墙壁的碰撞检测
 """
 
 import pygame
@@ -10,7 +8,7 @@ import random
 import time
 
 _display = pygame.display
-version = "V1.14"
+version = "V1.15"
 
 
 class MainGame():
@@ -100,6 +98,8 @@ class MainGame():
             # 调用我方坦克的移动方法
             if not MainGame.P1_TANK.stop:
                 MainGame.P1_TANK.move()
+                # 调用坦克碰撞墙壁的方法
+                MainGame.P1_TANK.hit_wall()
         else:
             del MainGame.P1_TANK
             MainGame.P1_TANK = None
@@ -108,11 +108,13 @@ class MainGame():
     def show_enemy_tank(self):
         # 遍历敌方坦克加入到窗口中
         for eTank in MainGame.enemy_tank_list:
-            # 移动方式更新
-            eTank.random_move()
             # 根绝live判断坦克是否应该渲染
             if eTank.live:
                 eTank.display_enemy_tank()
+                # 移动方式更新
+                eTank.random_move()
+                # 调用坦克碰撞墙壁的方法
+                eTank.hit_wall()
             else:
                 MainGame.enemy_tank_list.remove(eTank)
             # 敌方坦克调用射击方法
@@ -259,6 +261,10 @@ class Tank(BaseItem):
         # 新增属性live用来判断坦克是否还在
         self.live = True
 
+        # 新增属性用来记录坦克碰撞之前的坐标
+        self.old_left = 0
+        self.old_top = 0
+
     # 展示坦克
     def display_tank(self):
         # 设置坦克图片
@@ -268,6 +274,8 @@ class Tank(BaseItem):
 
     # 坦克移动方向
     def move(self):
+        self.old_top = self.rect.top
+        self.old_left = self.rect.left
         # 修改tank的坐标：取决于坦克的方向
         if self.direction == 'U':
             if self.rect.top > 0:
@@ -281,6 +289,18 @@ class Tank(BaseItem):
         elif self.direction == 'R':
             if self.rect.left < MainGame.SCREEN_WIDTH - self.rect.width:
                 self.rect.left += self.speed
+
+    # 新增坦克坐标还原的方法
+    def stay(self):
+        self.rect.left = self.old_left
+        self.rect.top = self.old_top
+
+    # 新增坦克与墙壁的碰撞方法
+    def hit_wall(self):
+        for wall in MainGame.wall_list:
+            result = pygame.sprite.collide_rect(wall, self)
+            if result:
+                self.stay()
 
     # 新增射击方法
     def fire(self):
