@@ -160,6 +160,7 @@ class MainGame():
                 explode.display_explode()
             else:
                 MainGame.explode_list.remove(explode)
+
     # 事件处理方法
     def getEvent(self):
         # 获取所有事件
